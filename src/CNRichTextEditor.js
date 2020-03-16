@@ -726,6 +726,7 @@ class CNRichTextEditor extends Component {
                 returnKeyType={this.props.returnKeyType}
                 foreColor={this.props.foreColor}
                 styleList={styles}
+                placeholder={this.props.placeholder}
                 style={isLast === true ?
                     {
                         borderWidth: 0,
