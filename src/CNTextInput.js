@@ -1479,6 +1479,7 @@ class CNTextInput extends Component {
                     ref={component => this.textInput = component}
                     onChangeText={this.handleChangeText}
                     onKeyPress={this.handleKeyDown}
+                    placeholder={this.props.placeholder}
                     selection={selection}
                     onFocus={this.onFocus}
                 >
@@ -1509,6 +1510,7 @@ class CNTextInput extends Component {
                         paddingRight: 2,
                         textAlignVertical: "top"
                     }]}
+                    placeholder={this.props.placeholder}
                     scrollEnabled={false}
                     returnKeyType={returnKeyType ? returnKeyType : "next"}
                     keyboardType="default"
