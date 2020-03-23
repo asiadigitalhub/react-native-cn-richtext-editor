@@ -397,17 +397,19 @@ export function convertToObject(htmlString) {
                     }
                 }
             } else {
-
-                for (let j = 0; j < element.childNodes.length; j++) {
-                    let child = element.childNodes[j]
-                    let childItem = xmlNodeToItem(child, tag, firstLine == false && j == 0)
-                    if (firstLine) {
-                        childItem.NewLine = j == 0
+                if (element.childNodes !== null){
+                    for (let j = 0; j < element.childNodes.length; j++) {
+                        let child = element.childNodes[j]
+                        let childItem = xmlNodeToItem(child, tag, firstLine == false && j == 0)
+                        if (firstLine) {
+                            childItem.NewLine = j == 0
+                        }
+                        item.content.push(
+                            childItem
+                        )
                     }
-                    item.content.push(
-                        childItem
-                    )
                 }
+                
             }
 
         }
