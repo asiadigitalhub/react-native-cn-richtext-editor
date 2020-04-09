@@ -1,15 +1,17 @@
-import React, { Component  } from 'react';
+import React, {Component} from 'react';
 import {
     TextInput, View, Image
     , ScrollView
     , TouchableWithoutFeedback,
-    Platform
+    Platform, Dimensions
 } from 'react-native';
 import _ from 'lodash';
 import update from 'immutability-helper';
-import { getInitialObject, defaultStyles } from "./Convertors";
+import {getInitialObject, defaultStyles} from "./Convertors";
 import CNTextInput from "./CNTextInput";
 
+const screenWidth = Dimensions.get('window').width;
+const screenHeight = Dimensions.get('window').height;
 
 const shortid = require('shortid');
 
@@ -19,7 +21,7 @@ class CNRichTextEditor extends Component {
         imageHighLightedInex: -1,
         layoutWidth: 400,
         styles: [],
-        selection: { start: 0, end: 0 },
+        selection: {start: 0, end: 0},
         justToolAdded: false,
         avoidUpdateText: false,
         focusInputIndex: 0,
@@ -28,8 +30,8 @@ class CNRichTextEditor extends Component {
     constructor(props) {
         super(props);
         this.textInputs = [];
-        this.prevSelection = { start: 0, end: 0 };
-        this.beforePrevSelection = { start: 0, end: 0 };
+        this.prevSelection = {start: 0, end: 0};
+        this.beforePrevSelection = {start: 0, end: 0};
         this.avoidSelectionChangeOnFocus = false;
         this.turnOnJustToolOnFocus = false;
         this.textLengths = [0];
@@ -89,7 +91,7 @@ class CNRichTextEditor extends Component {
             findIndx = content.length - 1;
         }
 
-        return { findIndx, itemNo };
+        return {findIndx, itemNo};
     }
 
     updateContent(content, item, index, itemNo = 0) {
@@ -114,12 +116,12 @@ class CNRichTextEditor extends Component {
                 text: foundElement.text.substring(itemNo)
             };
 
-            newContent = update(newContent, { [index - 1]: { $set: beforeContent } });
-            newContent = update(newContent, { $splice: [[index, 0, afterContent]] });
+            newContent = update(newContent, {[index - 1]: {$set: beforeContent}});
+            newContent = update(newContent, {$splice: [[index, 0, afterContent]]});
 
         }
         if (item !== null) {
-            newContent = update(newContent, { $splice: [[index, 0, item]] });
+            newContent = update(newContent, {$splice: [[index, 0, item]]});
         }
 
 
@@ -127,7 +129,7 @@ class CNRichTextEditor extends Component {
     }
 
     onConnectToPrevClicked = (index) => {
-        const { value } = this.props;
+        const {value} = this.props;
 
         if (index > 0 && (value[index - 1].component === 'image' || value[index - 1].component === 'video')
         ) {
@@ -138,7 +140,7 @@ class CNRichTextEditor extends Component {
 
     handleKeyDown = (e, index) => {
         this.avoidUpdateStyle = true;
-        const { value } = this.props;
+        const {value} = this.props;
         const item = value[index];
         if (item.component === 'image' && e.nativeEvent.key === 'Backspace') {
             if (this.state.imageHighLightedInex === index) {
@@ -223,8 +225,8 @@ class CNRichTextEditor extends Component {
     }
 
     addLinkContent = (text, height, width) => {
-        const { focusInputIndex } = this.state;
-        const { value } = this.props;
+        const {focusInputIndex} = this.state;
+        const {value} = this.props;
         let index = focusInputIndex + 1;
 
         const item = {
@@ -252,7 +254,7 @@ class CNRichTextEditor extends Component {
         if (newConents[index - 1].component === 'text') {
 
 
-            let { before, after } = this.textInputs[index - 1].splitItems();
+            let {before, after} = this.textInputs[index - 1].splitItems();
 
             if (Array.isArray(before) && before.length > 0) {
 
@@ -263,12 +265,12 @@ class CNRichTextEditor extends Component {
                 };
 
                 if (before[before.length - 1].text === '\n' && before[before.length - 1].readOnly !== true) {
-                    beforeContent.content = update(before, { $splice: [[before.length - 1, 1]] });
+                    beforeContent.content = update(before, {$splice: [[before.length - 1, 1]]});
                 } else {
                     beforeContent.content = before;
                 }
 
-                newConents = update(newConents, { [index - 1]: { $set: beforeContent } });
+                newConents = update(newConents, {[index - 1]: {$set: beforeContent}});
 
                 if (Array.isArray(after) && after.length > 0) {
                     let afterContent = {
@@ -284,7 +286,7 @@ class CNRichTextEditor extends Component {
 
                     afterContent.content = after;
 
-                    newConents = update(newConents, { $splice: [[index, 0, afterContent]] });
+                    newConents = update(newConents, {$splice: [[index, 0, afterContent]]});
                     this.textInputs[index - 1].reCalculateTextOnUpate = true;
                 }
             } else {
@@ -293,22 +295,22 @@ class CNRichTextEditor extends Component {
             }
         }
 
-        newConents = update(newConents, { $splice: [[index, 0, item]] });
+        newConents = update(newConents, {$splice: [[index, 0, item]]});
 
         if (newConents.length === index + 1) {
-            newConents = update(newConents, { $splice: [[index + 1, 0, getInitialObject()]] });
+            newConents = update(newConents, {$splice: [[index + 1, 0, getInitialObject()]]});
         }
 
         this.focusOnNextUpdate = index + 1;
-       
+
         this.props.onValueChanged(
             newConents
         );
     }
 
     addImageContent = (url, id, height, width) => {
-        const { focusInputIndex } = this.state;
-        const { value } = this.props;
+        const {focusInputIndex} = this.state;
+        const {value} = this.props;
         let index = focusInputIndex + 1;
 
         const item = {
@@ -323,12 +325,12 @@ class CNRichTextEditor extends Component {
         };
 
         let newConents = value;
-    
-       
+
+
         if (newConents[index - 1].component === 'text') {
 
-   
-            let { before, after } = this.textInputs[index - 1].splitItems();
+
+            let {before, after} = this.textInputs[index - 1].splitItems();
             if (Array.isArray(before) && before.length > 0) {
 
                 let beforeContent = {
@@ -339,13 +341,13 @@ class CNRichTextEditor extends Component {
 
                 if (before[before.length - 1].text === '\n' && before[before.length - 1].readOnly !== true) {
                     //before[before.length - 2].readOnly = undefined;
-                    beforeContent.content = update(before, { $splice: [[before.length - 1, 1]] });
+                    beforeContent.content = update(before, {$splice: [[before.length - 1, 1]]});
 
                 } else {
                     beforeContent.content = before;
                 }
-               
-                newConents = update(newConents, { [index - 1]: { $set: beforeContent } });
+
+                newConents = update(newConents, {[index - 1]: {$set: beforeContent}});
 
                 if (Array.isArray(after) && after.length > 0) {
                     let afterContent = {
@@ -361,7 +363,7 @@ class CNRichTextEditor extends Component {
 
                     afterContent.content = after;
 
-                    newConents = update(newConents, { $splice: [[index, 0, afterContent]] });
+                    newConents = update(newConents, {$splice: [[index, 0, afterContent]]});
                     this.textInputs[index - 1].reCalculateTextOnUpate = true;
                 }
             } else {
@@ -370,11 +372,11 @@ class CNRichTextEditor extends Component {
             }
         }
 
-        newConents = update(newConents, { $splice: [[index, 0, item]] });
+        newConents = update(newConents, {$splice: [[index, 0, item]]});
 
 
         if (newConents.length === index + 1) {
-            newConents = update(newConents, { $splice: [[index + 1, 0, getInitialObject()]] });
+            newConents = update(newConents, {$splice: [[index + 1, 0, getInitialObject()]]});
         }
         this.focusOnNextUpdate = index + 1;
         this.props.onValueChanged(
@@ -384,8 +386,8 @@ class CNRichTextEditor extends Component {
     }
 
     addVideoContent = (url, thumnail, height, width) => {
-        const { focusInputIndex } = this.state;
-        const { value } = this.props;
+        const {focusInputIndex} = this.state;
+        const {value} = this.props;
         let index = focusInputIndex + 1;
         var arrayDAta = thumnail.split('/');
         var fileName = arrayDAta[arrayDAta.length - 1];
@@ -402,7 +404,7 @@ class CNRichTextEditor extends Component {
             id: shortid.generate(),
             component: 'video',
             thumnail: thumnail,
-            filename: fileName, 
+            filename: fileName,
             url: url,
             typeVideo: type,
             size: {
@@ -415,7 +417,7 @@ class CNRichTextEditor extends Component {
         if (newConents[index - 1].component === 'text') {
 
 
-            let { before, after } = this.textInputs[index - 1].splitItems();
+            let {before, after} = this.textInputs[index - 1].splitItems();
 
             if (Array.isArray(before) && before.length > 0) {
 
@@ -426,13 +428,13 @@ class CNRichTextEditor extends Component {
                 };
 
                 if (before[before.length - 1].text === '\n' && before[before.length - 1].readOnly !== true) {
-                    beforeContent.content = update(before, { $splice: [[before.length - 1, 1]] });
-                  
+                    beforeContent.content = update(before, {$splice: [[before.length - 1, 1]]});
+
                 } else {
                     beforeContent.content = before;
                 }
 
-                newConents = update(newConents, { [index - 1]: { $set: beforeContent } });
+                newConents = update(newConents, {[index - 1]: {$set: beforeContent}});
 
                 if (Array.isArray(after) && after.length > 0) {
                     let afterContent = {
@@ -448,7 +450,7 @@ class CNRichTextEditor extends Component {
 
                     afterContent.content = after;
 
-                    newConents = update(newConents, { $splice: [[index, 0, afterContent]] });
+                    newConents = update(newConents, {$splice: [[index, 0, afterContent]]});
                     this.textInputs[index - 1].reCalculateTextOnUpate = true;
                 }
             } else {
@@ -457,10 +459,10 @@ class CNRichTextEditor extends Component {
             }
         }
 
-        newConents = update(newConents, { $splice: [[index, 0, item]] });
+        newConents = update(newConents, {$splice: [[index, 0, item]]});
 
         if (newConents.length === index + 1) {
-            newConents = update(newConents, { $splice: [[index + 1, 0, getInitialObject()]] });
+            newConents = update(newConents, {$splice: [[index + 1, 0, getInitialObject()]]});
         }
 
         this.focusOnNextUpdate = index + 1;
@@ -495,18 +497,18 @@ class CNRichTextEditor extends Component {
 
     removeLink = (index) => {
 
-        const { value } = this.props;
+        const {value} = this.props;
 
         let newConents = value;
 
         let selectionStart = 0;
         let removeCout = 1;
 
-        newConents = update(newConents, { $splice: [[index, removeCout]] });
+        newConents = update(newConents, {$splice: [[index, removeCout]]});
 
 
         this.focusOnNextUpdate = index - 1;
-        this.selectionOnFocus = { start: selectionStart, end: selectionStart }
+        this.selectionOnFocus = {start: selectionStart, end: selectionStart}
 
         if (this.props.onValueChanged)
             this.props.onValueChanged(newConents);
@@ -516,7 +518,7 @@ class CNRichTextEditor extends Component {
 
     removeImage = (index) => {
 
-        const { value } = this.props;
+        const {value} = this.props;
         const content = value[index];
 
 
@@ -548,7 +550,7 @@ class CNRichTextEditor extends Component {
                 if (this.textInputs[index + 1].textLength > 0
                     && nextContent.content.length > 0) {
 
-                    let firstItem = { ...nextContent.content[0] };
+                    let firstItem = {...nextContent.content[0]};
                     firstItem.text = '\n' + firstItem.text;
                     firstItem.len = firstItem.text.length;
 
@@ -574,9 +576,9 @@ class CNRichTextEditor extends Component {
                         ]]
                     });
 
-                    prevContent.content = update(prevContent.content, { $push: nextContent.content });
+                    prevContent.content = update(prevContent.content, {$push: nextContent.content});
 
-                    newConents = update(newConents, { [index - 1]: { $set: prevContent } });
+                    newConents = update(newConents, {[index - 1]: {$set: prevContent}});
                     var ref = this.textInputs[index - 1];
                     ref.reCalculateTextOnUpate = true;
                     selectionStart += 1;
@@ -584,27 +586,27 @@ class CNRichTextEditor extends Component {
                 }
 
             }
-        
-            newConents = update(newConents, { $splice: [[index, removeCout]] });
-            
-        
+
+            newConents = update(newConents, {$splice: [[index, removeCout]]});
+
+
             this.focusOnNextUpdate = index - 1;
-            this.selectionOnFocus = { start: selectionStart, end: selectionStart }
-            
+            this.selectionOnFocus = {start: selectionStart, end: selectionStart}
+
 
             if (this.props.onValueChanged)
                 this.props.onValueChanged(newConents);
 
             if (this.props.onRemoveImage) {
                 this.props.onRemoveImage(
-                    { id: removedId, url: removedUrl });
+                    {id: removedId, url: removedUrl});
             }
         }
     }
 
     removeVideo = (index) => {
 
-        const { value } = this.props;
+        const {value} = this.props;
         const content = value[index];
 
 
@@ -636,7 +638,7 @@ class CNRichTextEditor extends Component {
                 if (this.textInputs[index + 1].textLength > 0
                     && nextContent.content.length > 0) {
 
-                    let firstItem = { ...nextContent.content[0] };
+                    let firstItem = {...nextContent.content[0]};
                     firstItem.text = '\n' + firstItem.text;
                     firstItem.len = firstItem.text.length;
 
@@ -662,9 +664,9 @@ class CNRichTextEditor extends Component {
                         ]]
                     });
 
-                    prevContent.content = update(prevContent.content, { $push: nextContent.content });
+                    prevContent.content = update(prevContent.content, {$push: nextContent.content});
 
-                    newConents = update(newConents, { [index - 1]: { $set: prevContent } });
+                    newConents = update(newConents, {[index - 1]: {$set: prevContent}});
                     var ref = this.textInputs[index - 1];
                     ref.reCalculateTextOnUpate = true;
                     selectionStart += 1;
@@ -673,17 +675,17 @@ class CNRichTextEditor extends Component {
 
             }
 
-            newConents = update(newConents, { $splice: [[index, removeCout]] });
+            newConents = update(newConents, {$splice: [[index, removeCout]]});
 
             this.focusOnNextUpdate = index - 1;
-            this.selectionOnFocus = { start: selectionStart, end: selectionStart }
-            
+            this.selectionOnFocus = {start: selectionStart, end: selectionStart}
+
             if (this.props.onValueChanged)
                 this.props.onValueChanged(newConents);
 
             if (this.props.onRemoveImage) {
                 this.props.onRemoveImage(
-                    { id: removedId, url: removedUrl });
+                    {id: removedId, url: removedUrl});
             }
         }
     }
@@ -696,7 +698,7 @@ class CNRichTextEditor extends Component {
             this.removeLink(index)
         } else {
             this.props.onValueChanged(
-                update(this.props.value, { [index]: { $set: input } })
+                update(this.props.value, {[index]: {$set: input}})
             );
         }
     }
@@ -741,22 +743,23 @@ class CNRichTextEditor extends Component {
     }
 
     renderImage(image, index) {
-        const { width, height } = image.size;
+        const {width, height} = image.size;
         let myHeight = (this.state.layoutWidth - 4 < width) ? height * ((this.state.layoutWidth - 4) / width) : height;
         let myWidth = (this.state.layoutWidth - 4 < width) ? this.state.layoutWidth - 4 : width;
 
         return (
             <View key={`image${index}`}
-                style={{
+                  style={{
 
-                    flexDirection: 'row',
-                    alignItems: 'flex-start',
-                    backgroundColor: this.state.imageHighLightedInex === index ? 'yellow' : 'transparent',
-                    paddingLeft: 2,
-                    paddingRight: 2,
-                    paddingTop: 2,
-                    paddingBottom: 2
-                }}
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      backgroundColor: this.state.imageHighLightedInex === index ? 'yellow' : 'transparent',
+                      paddingLeft: this.state.imageHighLightedInex === index ? 2 : 0,
+                      paddingRight: this.state.imageHighLightedInex === index ? 2 : 0,
+                      paddingTop: this.state.imageHighLightedInex === index ? 2 : 0,
+                      paddingBottom: this.state.imageHighLightedInex === index ? 2 : 0,
+                  }}
             >
                 <TouchableWithoutFeedback
                     onPress={() => this.onImageClicked(index)}
@@ -764,17 +767,18 @@ class CNRichTextEditor extends Component {
                 >
                     <Image
                         style={{
-                            width: myWidth, height: myHeight
-                            , opacity: this.state.imageHighLightedInex === index ? .8 : 1
+                            width: screenWidth -  54,
+                            height: (screenWidth -  54) * 0.8,
+                            opacity: this.state.imageHighLightedInex === index ? 0.8 : 1
                         }}
-                        source={{ uri: image.url }}
+                        source={{uri: image.url}}
                     />
                 </TouchableWithoutFeedback>
                 <TextInput
                     onKeyPress={(event) => this.handleKeyDown(event, index)}
                     multiline={false}
                     style={{
-                        fontSize: myHeight * .65,
+                        fontSize: 20,
                         borderWidth: 0,
                         paddingBottom: 1,
                         width: 1
@@ -787,37 +791,45 @@ class CNRichTextEditor extends Component {
     }
 
     renderVideo(image, index) {
-        const { width, height } = image.size;
+        const {width, height} = image.size;
         let myHeight = (this.state.layoutWidth - 4 < width) ? height * ((this.state.layoutWidth - 4) / width) : height;
         let myWidth = (this.state.layoutWidth - 4 < width) ? this.state.layoutWidth - 4 : width;
 
         return (
             <View key={`video${index}`}
-                style={{
+                  style={{
 
-                    flexDirection: 'row',
-                    alignItems: 'flex-start',
-                    backgroundColor: this.state.imageHighLightedInex === index ? 'yellow' : 'transparent',
-                    paddingLeft: 2,
-                    paddingRight: 2,
-                    paddingTop: 2,
-                    paddingBottom: 2
-                }}
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      backgroundColor: this.state.imageHighLightedInex === index ? 'yellow' : 'transparent',
+                      paddingLeft: this.state.imageHighLightedInex === index ? 2 : 0,
+                      paddingRight: this.state.imageHighLightedInex === index ? 2 : 0,
+                      paddingTop: this.state.imageHighLightedInex === index ? 2 : 0,
+                      paddingBottom: this.state.imageHighLightedInex === index ? 2 : 0,
+                  }}
             >
                 <TouchableWithoutFeedback
                     onPress={() => this.onImageClicked(index)}
                 >
-                    <View >
+                    <View>
                         <Image
                             style={{
-                                width: myWidth, height: myHeight
-                                , opacity: this.state.imageHighLightedInex === index ? .8 : 1
+                                width: screenWidth - 54,
+                                height: (screenWidth - 54) * 0.8,
+                                opacity: this.state.imageHighLightedInex === index ? 0.8 : 1
                             }}
-                            source={{ uri: image.thumnail }}
+                            source={{uri: image.thumnail ? image.thumnail : this.props.imagesThumnail}}
                         />
-                        <View style={{ position: 'absolute', height: '100%', width: '100%', justifyContent: 'center', alignItems: 'center' }}>
+                        <View style={{
+                            position: 'absolute',
+                            height: '100%',
+                            width: '100%',
+                            justifyContent: 'center',
+                            alignItems: 'center'
+                        }}>
                             <Image
-                                style={{ width: 70, height: 70, resizeMode: 'contain' }}
+                                style={{width: 70, height: 70, resizeMode: 'contain'}}
                                 source={require('../../../assets/icon_play.png')}
                             />
                         </View>
@@ -829,7 +841,7 @@ class CNRichTextEditor extends Component {
                     onKeyPress={(event) => this.handleKeyDown(event, index)}
                     multiline={false}
                     style={{
-                        fontSize: myHeight * .65,
+                        fontSize: 20,
                         borderWidth: 0,
                         paddingBottom: 1,
                         width: 1
@@ -872,7 +884,7 @@ class CNRichTextEditor extends Component {
     }
 
     applyToolbar(toolType) {
-        const { focusInputIndex } = this.state;
+        const {focusInputIndex} = this.state;
 
         if (toolType === 'body' || toolType === 'title' || toolType === 'heading' || toolType === 'ul' || toolType === 'ol') {
 
@@ -882,10 +894,10 @@ class CNRichTextEditor extends Component {
         } else if (toolType == 'image' || toolType === 'video') {
             //convertToHtmlStringconvertToHtmlString(this.state.contents);
 
-            this.setState({ showAddImageModal: true });
+            this.setState({showAddImageModal: true});
             return;
         } else
-            //if(toolType === 'bold' || toolType === 'italic' || toolType === 'underline' || toolType === 'lineThrough')
+        //if(toolType === 'bold' || toolType === 'italic' || toolType === 'underline' || toolType === 'lineThrough')
             this.textInputs[focusInputIndex].applyStyle(toolType);
     }
 
@@ -904,17 +916,18 @@ class CNRichTextEditor extends Component {
 
     render() {
 
-        const { value, style } = this.props;
+        const {value, style} = this.props;
         return (
             <View
                 style={[{
                     flex: 1,
-                    padding: 10
                 }, style]}>
 
 
                 <ScrollView contentContainerStyle={{
                     flexGrow: 1,
+                    paddingLeft: 20,
+                    paddingRight: 20,
                     alignContent: 'flex-start',
                     justifyContent: 'flex-start',
                 }}>
@@ -923,7 +936,7 @@ class CNRichTextEditor extends Component {
                         alignContent: 'flex-start',
                         justifyContent: 'flex-start',
                     }}
-                        onLayout={this.onLayout}
+                          onLayout={this.onLayout}
                     >
                         {
                             _.map(value, (item, index) => {
