@@ -2,9 +2,9 @@ var DOMParser = require('xmldom').DOMParser
 var XMLSerializer = require('xmldom').XMLSerializer
 const shortid = require('shortid')
 import update from 'immutability-helper'
-import { StyleSheet } from 'react-native'
+import {StyleSheet} from 'react-native'
 
-export function convertToHtmlString(contents, styleList = null,featureImage) {
+export function convertToHtmlString(contents, styleList = null, featureImage) {
     let availableStyles = styleList == null ? defaultStyles : styleList
 
     //let keys = Object.keys(availableStyles);
@@ -38,6 +38,7 @@ export function convertToHtmlString(contents, styleList = null,featureImage) {
                 let isPurpleMarker = item.stype.indexOf('purple_hl') > -1
                 let isYellowMarker = item.stype.indexOf('yellow_hl') > -1
                 let isOrangeMarker = item.stype.indexOf('orange_hl') > -1
+                let isHref = item.stype.indexOf('href') > -1
                 let tag = ''
 
 
@@ -112,20 +113,29 @@ export function convertToHtmlString(contents, styleList = null,featureImage) {
                 if (item.readOnly === true) {
 
                 } else {
-                    var child = myDoc.createElement('span')
-                    if (item.NewLine === true && j != 0) {
-                        child.appendChild(myDoc.createTextNode(item.text.substring(1)))
-                    } else {
+                    if (isHref) {
+                        var child = myDoc.createElement('a')
+                        child.setAttribute('href', item.text)
                         child.appendChild(myDoc.createTextNode(item.text))
-                    }
+                        element.appendChild(child)
+                    }else{
+                        var child = myDoc.createElement('span')
+                        if (item.NewLine === true && j != 0) {
+                            child.appendChild(myDoc.createTextNode(item.text.substring(1)))
+                        } else {
+                            child.appendChild(myDoc.createTextNode(item.text))
+                        }
 
-                    if (styles.length > 0) {
-                        child.setAttribute('style', styles)
-                    }
+                        if (styles.length > 0) {
+                            child.setAttribute('style', styles)
+                        }
 
-                    element.appendChild(child)
+                        element.appendChild(child)
+
+                    }
 
                 }
+
 
             }
         } else if (input.component === 'image') {
@@ -141,8 +151,8 @@ export function convertToHtmlString(contents, styleList = null,featureImage) {
             myDoc.documentElement.appendChild(element)
         } else if (input.component === 'video') {
             element = myDoc.createElement('iframe')
-            let img = featureImage ? '&poster='+ featureImage :'';
-            element.setAttribute('src', '//aka.ms/ampembed?url=' + input.url + '&autoplay=false'+img)
+            let img = featureImage ? '&poster=' + featureImage : '';
+            element.setAttribute('src', '//aka.ms/ampembed?url=' + input.url + '&autoplay=false' + img)
             element.setAttribute('data-azure-media-service', 'true')
             element.setAttribute('name', input.filename)
             element.setAttribute('scrolling', 'no')
@@ -185,6 +195,7 @@ export function convertToObject(htmlString) {
 
     for (let i = 0; i < doc.documentElement.childNodes.length; i++) {
         const element = doc.documentElement.childNodes[i]
+
         var tag = ''
         switch (element.nodeName) {
             case 'h1':
@@ -208,6 +219,9 @@ export function convertToObject(htmlString) {
             case 'iframe':
                 tag = 'iframe'
                 break
+            case 'a':
+                tag = 'a'
+                break
             default:
                 break
         }
@@ -217,7 +231,7 @@ export function convertToObject(htmlString) {
             if (item != null) {
                 //contents.push(item);
 
-                contents = update(contents, { $push: [item] })
+                contents = update(contents, {$push: [item]})
                 item = null
             }
 
@@ -256,7 +270,7 @@ export function convertToObject(htmlString) {
             if (item != null) {
                 //contents.push(item);
 
-                contents = update(contents, { $push: [item] })
+                contents = update(contents, {$push: [item]})
                 item = null
             }
 
@@ -309,7 +323,7 @@ export function convertToObject(htmlString) {
             if (item != null) {
                 //contents.push(item);
 
-                contents = update(contents, { $push: [item] })
+                contents = update(contents, {$push: [item]})
                 item = null
             }
 
@@ -354,9 +368,7 @@ export function convertToObject(htmlString) {
                 }
                 ]
             })
-        }
-        else
-        {
+        } else {
             if (item == null) {
                 item = {
                     component: 'text',
@@ -377,7 +389,7 @@ export function convertToObject(htmlString) {
                         text: tag == 'ol' ? (firstLine == true & k == 0 ? (k + 1) + '- ' : '\n' + (k + 1) + '- ') : ((firstLine === true && k == 0) ? '\u2022 ' : '\n\u2022 '),
                         len: 2,
                         stype: [],
-                        styleList: StyleSheet.flatten(convertStyleList(update([], { $push: [tag] }))),
+                        styleList: StyleSheet.flatten(convertStyleList(update([], {$push: [tag]}))),
                         tag: tag,
                         NewLine: true,
                         readOnly: true
@@ -397,7 +409,7 @@ export function convertToObject(htmlString) {
                     }
                 }
             } else {
-                if (element.childNodes !== null){
+                if (element.childNodes !== null) {
                     for (let j = 0; j < element.childNodes.length; j++) {
                         let child = element.childNodes[j]
                         let childItem = xmlNodeToItem(child, tag, firstLine == false && j == 0)
@@ -407,9 +419,21 @@ export function convertToObject(htmlString) {
                         item.content.push(
                             childItem
                         )
+                        if (child.nodeName === 'a'){
+                            item.content.push({
+                                    id: shortid.generate(),
+                                    text:" ",
+                                    len: 1,
+                                    stype: [],
+                                    styleList: StyleSheet.flatten(convertStyleList(update([], {$push: [tag]}), defaultStyles)),
+                                    tag: 'body',
+                                    NewLine: true,
+                            }
+                            )
+                        }
                     }
                 }
-                
+
             }
 
         }
@@ -418,7 +442,7 @@ export function convertToObject(htmlString) {
     if (item != null) {
 
 
-        contents = update(contents, { $push: [item] })
+        contents = update(contents, {$push: [item]})
         item = null
     }
 
@@ -442,6 +466,7 @@ function xmlNodeToItem(child, tag, newLine, styleList = null) {
     let isPurpleMarker = false
     let isGreenMarker = false
     let isYellowMarker = false
+    let isHref = false
 
     let text = ''
 
@@ -469,11 +494,23 @@ function xmlNodeToItem(child, tag, newLine, styleList = null) {
 
         }
 
+    }else if (child.nodeName === 'a'){
+        isHref = true;
+        try {
+            text = child.childNodes[0].nodeValue
+        } catch (error) {
+
+        }
     } else {
         text = child.nodeValue === null ? '' : child.nodeValue
     }
 
     let stype = []
+    if (isHref) {
+        stype.push('underline')
+        stype.push('blue')
+        stype.push('href')
+    }
     if (isBold) {
         stype.push('bold')
     }
@@ -525,7 +562,7 @@ function xmlNodeToItem(child, tag, newLine, styleList = null) {
         text: newLine === true ? '\n' + text : text,
         len: newLine === true ? text.length + 1 : text.length,
         stype: stype,
-        styleList: StyleSheet.flatten(convertStyleList(update(stype, { $push: [tag] }), styleList)),
+        styleList: StyleSheet.flatten(convertStyleList(update(stype, {$push: [tag]}), styleList)),
         tag: tag,
         NewLine: newLine
     }
@@ -547,6 +584,20 @@ export function getInitialObject() {
             NewLine: true
         }
         ]
+    }
+}
+
+
+export function getInitialObjectContent() {
+    return {
+        id: shortid.generate(),
+        text: '',
+        len: 0,
+        stype: [],
+        styleList: [{
+            fontSize: 20,
+        }],
+        tag: 'body',
     }
 }
 
@@ -608,8 +659,8 @@ const defaultStyles = StyleSheet.create(
         italic: {
             fontStyle: 'italic'
         },
-        underline: { textDecorationLine: 'underline' },
-        lineThrough: { textDecorationLine: 'line-through' },
+        underline: {textDecorationLine: 'underline'},
+        lineThrough: {textDecorationLine: 'line-through'},
         heading: {
             fontSize: 25
         },
