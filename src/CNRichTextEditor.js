@@ -1,13 +1,14 @@
 import React, {Component} from 'react';
 import {
-    TextInput, View, Image
+    TextInput, View, Image, Text,
+    Linking
     , ScrollView
     , TouchableWithoutFeedback,
     Platform, Dimensions
 } from 'react-native';
 import _ from 'lodash';
 import update from 'immutability-helper';
-import {getInitialObject, defaultStyles} from "./Convertors";
+import {getInitialObject, getInitialObjectContent, defaultStyles} from "./Convertors";
 import CNTextInput from "./CNTextInput";
 
 const screenWidth = Dimensions.get('window').width;
@@ -306,6 +307,27 @@ class CNRichTextEditor extends Component {
         this.props.onValueChanged(
             newConents
         );
+    }
+
+    addURLContent = (text) => {
+        const {focusInputIndex} = this.state;
+        const {value} = this.props;
+        let index = focusInputIndex + 1;
+        let contents = value[value.length - 1].content;
+        let sum = 0;
+        let textValue = '';
+        for (var key in contents) {
+            textValue += contents[key].text;
+            sum += contents[key].len;
+        }
+        this.textInputs[focusInputIndex].createUpComingStyle(sum, sum + (text.length), 'body',['blue','underline','href']);
+        this.textInputs[focusInputIndex].handleChangeText(textValue + text);
+        setTimeout(()=>{
+            this.applyToolbar('bold');
+            this.applyToolbar('bold');
+            this.textInputs[focusInputIndex].createUpComing((textValue + text).length , (textValue + text).length, 'body',[]);
+            this.textInputs[focusInputIndex].handleChangeText(textValue + text);
+        },500)
     }
 
     addImageContent = (url, id, height, width) => {
@@ -767,8 +789,8 @@ class CNRichTextEditor extends Component {
                 >
                     <Image
                         style={{
-                            width: screenWidth -  54,
-                            height: (screenWidth -  54) * 0.8,
+                            width: screenWidth - 54,
+                            height: (screenWidth - 54) * 0.8,
                             opacity: this.state.imageHighLightedInex === index ? 0.8 : 1
                         }}
                         source={{uri: image.url}}
@@ -939,6 +961,7 @@ class CNRichTextEditor extends Component {
                           onLayout={this.onLayout}
                     >
                         {
+
                             _.map(value, (item, index) => {
                                 if (item.component === 'text') {
                                     return (
