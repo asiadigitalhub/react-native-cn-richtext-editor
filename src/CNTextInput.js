@@ -1,7 +1,8 @@
-import React, { Component } from 'react';
-import { TextInput, StyleSheet, Platform } from 'react-native';
+import React, {Component} from 'react';
+import {TextInput, StyleSheet, Platform} from 'react-native';
 import _ from 'lodash';
 import update from 'immutability-helper';
+
 const shortid = require('shortid');
 import CNStyledText from "./CNStyledText";
 
@@ -15,8 +16,8 @@ class CNTextInput extends Component {
     constructor(props) {
         super(props);
         this.textInput = null;
-        this.prevSelection = { start: 0, end: 0 };
-        this.beforePrevSelection = { start: 0, end: 0 };
+        this.prevSelection = {start: 0, end: 0};
+        this.beforePrevSelection = {start: 0, end: 0};
         this.avoidSelectionChangeOnFocus = false;
         this.turnOnJustToolOnFocus = false;
         this.textLength = 0;
@@ -30,7 +31,7 @@ class CNTextInput extends Component {
         this.justToolAdded = false;
         this.state = {
             selectedTag: 'body',
-            selection: { start: 0, end: 0 },
+            selection: {start: 0, end: 0},
             avoidUpdateText: false,
         };
 
@@ -83,8 +84,7 @@ class CNTextInput extends Component {
                     findIndx = index;
                     itemNo = 0;
                     break;
-                }
-                else {
+                } else {
                     break;
                 }
             }
@@ -103,7 +103,7 @@ class CNTextInput extends Component {
             findIndx = content.length - 1;
         }
 
-        return { findIndx, itemNo };
+        return {findIndx, itemNo};
     }
 
     updateContent(content, item, index, itemNo = 0) {
@@ -111,15 +111,13 @@ class CNTextInput extends Component {
         let newContent = content;
         if (itemNo === 0) {
             if (item !== null && index >= 0) {
-                newContent = update(newContent, { $splice: [[index, 0, item]] });
+                newContent = update(newContent, {$splice: [[index, 0, item]]});
             }
-        }
-        else if (itemNo === content[index].len) {
+        } else if (itemNo === content[index].len) {
             if (item !== null && index >= 0) {
-                newContent = update(newContent, { $splice: [[index + 1, 0, item]] });
+                newContent = update(newContent, {$splice: [[index + 1, 0, item]]});
             }
-        }
-        else if (itemNo > 0) {
+        } else if (itemNo > 0) {
             const foundElement = content[index];
             beforeContent = {
                 id: foundElement.id,
@@ -139,10 +137,10 @@ class CNTextInput extends Component {
                 text: foundElement.text.substring(itemNo)
             };
 
-            newContent = update(newContent, { [index]: { $set: beforeContent } });
+            newContent = update(newContent, {[index]: {$set: beforeContent}});
 
-            newContent = update(newContent, { $splice: [[index + 1, 0, afterContent]] });
-            newContent = update(newContent, { $splice: [[index + 1, 0, item]] });
+            newContent = update(newContent, {$splice: [[index + 1, 0, afterContent]]});
+            newContent = update(newContent, {$splice: [[index + 1, 0, item]]});
 
         }
 
@@ -166,8 +164,7 @@ class CNTextInput extends Component {
         ) {
             this.justToolAdded = false;
 
-        }
-        else {
+        } else {
             if (this.justToolAdded == true) {
                 this.justToolAdded = false;
 
@@ -195,15 +192,13 @@ class CNTextInput extends Component {
                     && upComingStype.sel.end === this.prevSelection.end) {
                     styles = upComingStype.stype;
                     selectedTag = upComingStype.tag;
-                }
-                else {
+                } else {
 
                     this.upComingStype = null;
                 }
-            }
-            else {
+            } else {
                 const content = this.props.items;
-                let { findIndx } = this.findContentIndex(content, selection.end);
+                let {findIndx} = this.findContentIndex(content, selection.end);
                 styles = content[findIndx].stype;
                 selectedTag = content[findIndx].tag;
             }
@@ -223,10 +218,9 @@ class CNTextInput extends Component {
                 this.setState({
                     selection: selection,
                 });
-            }
-            else {
+            } else {
                 this.setState({
-                    selection: { start: selection.end, end: selection.start },
+                    selection: {start: selection.end, end: selection.start},
                 });
             }
 
@@ -245,8 +239,8 @@ class CNTextInput extends Component {
 
     handleChangeText = (text) => {
         let recalcText = false;
-        const { selection } = this.state;
-        const { items } = this.props;
+        const {selection} = this.state;
+        const {items} = this.props;
 
         //index of items that newLine should be applied or remove
 
@@ -279,32 +273,26 @@ class CNTextInput extends Component {
                 cursorPosition = this.prevSelection.end;
                 addCursorPosition = this.prevSelection.start;
 
-            }
-            else if (textDiff === 0 && this.prevSelection.end === selection.end) {
+            } else if (textDiff === 0 && this.prevSelection.end === selection.end) {
                 remDiff = 1;
                 addDiff = 1;
                 shouldRemText = true;
                 shouldAddText = addDiff > 0;
                 cursorPosition = this.prevSelection.end;
                 addCursorPosition = this.prevSelection.end - 1;
-            }
-            else if (Math.abs(this.prevSelection.end - selection.end) == Math.abs(textDiff)) {
+            } else if (Math.abs(this.prevSelection.end - selection.end) == Math.abs(textDiff)) {
                 cursorPosition = this.prevSelection.end;
-            }
-            else if (Math.abs(this.prevSelection.end - selection.end) + Math.abs(this.beforePrevSelection.end - this.prevSelection.end) == Math.abs(textDiff)) {
+            } else if (Math.abs(this.prevSelection.end - selection.end) + Math.abs(this.beforePrevSelection.end - this.prevSelection.end) == Math.abs(textDiff)) {
                 cursorPosition = this.beforePrevSelection.end;
-            }
-            else {
+            } else {
                 var diff = Math.abs(textDiff) - Math.abs(this.prevSelection.end - selection.end) - Math.abs(this.beforePrevSelection.end - this.prevSelection.end)
 
                 if (this.beforePrevSelection.end + diff <= prevLen) {
                     cursorPosition = this.beforePrevSelection.end + diff;
-                }
-                else {
+                } else {
                     if (this.textLength < myText.length) {
                         cursorPosition = this.prevSelection.end - Math.abs(textDiff);
-                    }
-                    else {
+                    } else {
                         console.log('error may occure');
                         cursorPosition = this.beforePrevSelection.end;
                     }
@@ -312,8 +300,7 @@ class CNTextInput extends Component {
                 }
 
             }
-        }
-        else {
+        } else {
             if (selection.end !== selection.start) {
 
                 remDiff = Math.abs(selection.end - selection.start);
@@ -322,8 +309,7 @@ class CNTextInput extends Component {
                 shouldAddText = addDiff > 0;
                 cursorPosition = selection.end;
                 addCursorPosition = selection.start;
-            }
-            else {
+            } else {
                 cursorPosition = selection.end;
             }
 
@@ -346,8 +332,7 @@ class CNTextInput extends Component {
                 let lstIndx = bef.lastIndexOf(' ');
                 if (lstIndx > 0) {
                     this.AvoidAndroidIssueWhenPressSpace = 3;
-                }
-                else {
+                } else {
                     this.AvoidAndroidIssueWhenPressSpace = 3;
                 }
 
@@ -395,8 +380,7 @@ class CNTextInput extends Component {
                 if (!recalcText)
                     recalcText = res.recalcText;
             }
-        }
-        else {
+        } else {
             //shoud compare with
 
             const mydiff = this.dmp.diff_main(this.oldText, text);
@@ -435,8 +419,7 @@ class CNTextInput extends Component {
 
         if (recalcText === true) {
             this.oldText = this.reCalculateText(content);
-        }
-        else {
+        } else {
             this.oldText = text;
         }
 
@@ -447,8 +430,7 @@ class CNTextInput extends Component {
             styles = content[res.findIndx].stype;
             tagg = content[res.findIndx].tag;
 
-        }
-        else {
+        } else {
             styles = upComing.stype;
             tagg = upComing.tag;
         }
@@ -493,17 +475,15 @@ class CNTextInput extends Component {
                     foundIndex += 1;
                     foundItemNo = 0;
 
-                }
-                else {
+                } else {
                     if (this.upComingStype
                         && this.upComingStype.sel.end === cursorPosition) {
 
-                    }
-                    else {
+                    } else {
                         avoidStopSelectionForIOS = true;
                         this.upComingStype = {
                             text: '', len: 0,
-                            sel: { start: cursorPosition, end: cursorPosition },
+                            sel: {start: cursorPosition, end: cursorPosition},
                             stype: content[foundIndex].stype,
                             tag: content[foundIndex].tag,
                             styleList: content[foundIndex].styleList
@@ -512,22 +492,25 @@ class CNTextInput extends Component {
                 }
 
 
-            }
-            else {
+            } else {
                 startWithReadonly = true;
 
             }
         }
 
         if (this.upComingStype !== null && startWithReadonly === false
-            && this.upComingStype.sel.end === cursorPosition) {
+          && this.upComingStype.sel.end === cursorPosition) {
 
             content = this.updateContent(content, {
-                id: shortid.generate(), text: '',
-                len: 0, stype: this.upComingStype.stype, tag: this.upComingStype.tag, styleList: this.upComingStype.styleList
+                id: shortid.generate(),
+                text: '',
+                len: 0,
+                stype: this.upComingStype.stype,
+                tag: this.upComingStype.tag,
+                styleList: this.upComingStype.styleList
             }, foundIndex, foundItemNo);
 
-            const { findIndx, itemNo } = this.findContentIndex(content, cursorPosition);
+            const {findIndx, itemNo} = this.findContentIndex(content, cursorPosition);
             foundIndex = findIndx;
             foundItemNo = itemNo;
 
@@ -540,6 +523,29 @@ class CNTextInput extends Component {
                 this.justToolAdded = true;
             }
 
+        } else if (this.upComingStype !== null && startWithReadonly === false
+            && this.upComingStype.link) {
+            content = this.updateContent(content, {
+                id: shortid.generate(),
+                text: '',
+                len: 0,
+                stype: this.upComingStype.stype,
+                tag: this.upComingStype.tag,
+                styleList: this.upComingStype.styleList
+            }, foundIndex, foundItemNo);
+
+            const {findIndx, itemNo} = this.findContentIndex(content, cursorPosition);
+            foundIndex = findIndx;
+            foundItemNo = itemNo;
+
+            if (IS_IOS === true
+                && avoidStopSelectionForIOS === false
+                && !(foundIndex === content.length - 1
+                    && foundItemNo === content[foundIndex].len)
+            ) {
+
+                this.justToolAdded = true;
+            }
         }
 
         this.checkKeyPressAndroid = 0;
@@ -557,8 +563,7 @@ class CNTextInput extends Component {
                 recalcText = res.recalcText;
             }
 
-        }
-        else if (content[foundIndex].text.substring(0, 1) == '\n' && content[foundIndex].NewLine != true) {
+        } else if (content[foundIndex].text.substring(0, 1) == '\n' && content[foundIndex].NewLine != true) {
             const res = this.updateNewLine(content, foundIndex, 0);
             content = res.content;
             if (!recalcText) {
@@ -566,7 +571,7 @@ class CNTextInput extends Component {
             }
         }
 
-        return { content, recalcText };
+        return {content, recalcText};
     }
 
     removeTextFromContent(content, cursorPosition, removeLength) {
@@ -625,8 +630,7 @@ class CNTextInput extends Component {
                     }
                 }
             }
-        }
-        else {
+        } else {
             let rem = remDiff - (foundItemNo);
 
             content[foundIndex].len = content[foundIndex].len - foundItemNo;
@@ -642,8 +646,7 @@ class CNTextInput extends Component {
                         content[i].text = content[i].text.substring(0, content[i].len - rem);
                         content[i].len -= rem;
                         break;
-                    }
-                    else {
+                    } else {
                         rem -= content[i].len;
                         content[i].len = 0;
                         content[i].text = '';
@@ -673,8 +676,7 @@ class CNTextInput extends Component {
                     content = res.content;
                     if (!recalcText)
                         recalcText = res.recalcText;
-                }
-                else {
+                } else {
                     if (removeIndexes.indexOf(content[index].id) >= 0) {
                         let tagg = content[index].tag;
                         if (tagg == 'ul' || tagg === 'ol') {
@@ -686,13 +688,11 @@ class CNTextInput extends Component {
                         }
                         if (content.length > 1) {
                             content[index + 1].NewLine = true;
-                        }
-                        else {
+                        } else {
                         }
                     }
                 }
-            }
-            else if (removeIndexes.indexOf(content[index].id) >= 0) {
+            } else if (removeIndexes.indexOf(content[index].id) >= 0) {
                 content[index].NewLine = false;
                 content[index].readOnly = false;
                 if (index > 0) {
@@ -710,7 +710,6 @@ class CNTextInput extends Component {
 
         for (let i = 0; i < removeIndexes.length; i++) {
             let remIndex = content.findIndex(x => x.id == removeIndexes[i]);
-
 
 
             if (remIndex < 0)
@@ -774,8 +773,7 @@ class CNTextInput extends Component {
             newContent = res.content;
             if (!recalcText)
                 recalcText = res.recalcText;
-        }
-        else if (itemNo === foundElement.len - 1) {
+        } else if (itemNo === foundElement.len - 1) {
 
             newContent[index].len = foundElement.len - 1;
             newContent[index].text = foundElement.text.substring(0, foundElement.text.length - 1);
@@ -790,8 +788,7 @@ class CNTextInput extends Component {
                 newContent = res.content;
                 if (!recalcText)
                     recalcText = res.recalcText;
-            }
-            else {
+            } else {
                 beforeContent = {
                     id: shortid.generate(),
                     len: 1,
@@ -801,9 +798,9 @@ class CNTextInput extends Component {
                     text: '\n',
                     NewLine: true
                 };
-                beforeContent.styleList = StyleSheet.flatten(this.convertStyleList(update(beforeContent.stype, { $push: [beforeContent.tag] })));
+                beforeContent.styleList = StyleSheet.flatten(this.convertStyleList(update(beforeContent.stype, {$push: [beforeContent.tag]})));
 
-                newContent = update(newContent, { $splice: [[index + 1, 0, beforeContent]] });
+                newContent = update(newContent, {$splice: [[index + 1, 0, beforeContent]]});
                 if (isPrevList === true) {
                     let res = this.changeToTagIn(newContent, prevTag, index + 1, true);
                     newContent = res.content;
@@ -812,8 +809,7 @@ class CNTextInput extends Component {
                 }
 
             }
-        }
-        else {
+        } else {
 
             beforeContent = {
                 id: foundElement.id,
@@ -835,8 +831,8 @@ class CNTextInput extends Component {
                 NewLine: true
             };
 
-            newContent = update(newContent, { [index]: { $set: beforeContent } });
-            newContent = update(newContent, { $splice: [[index + 1, 0, afterContent]] });
+            newContent = update(newContent, {[index]: {$set: beforeContent}});
+            newContent = update(newContent, {$splice: [[index + 1, 0, afterContent]]});
 
             let res = this.changeToTagIn(newContent, isPrevList ? prevTag : 'body', index + 1, true);
             newContent = res.content;
@@ -845,26 +841,39 @@ class CNTextInput extends Component {
         }
 
 
-        return { content: newContent, recalcText };
+        return {content: newContent, recalcText};
     }
 
     createUpComing(start, end, tag, stype) {
         this.upComingStype = {
-            sel: { start, end },
+            sel: {start, end},
             tag: tag,
             text: '',
             stype: stype,
-            styleList: StyleSheet.flatten(this.convertStyleList(update(stype, { $push: [tag] })))
+            styleList: StyleSheet.flatten(this.convertStyleList(update(stype, {$push: [tag]})))
+        };
+    }
+
+    createUpComingStyle(start, end, tag, stype) {
+        this.upComingStype = {
+            sel: {start, end},
+            tag: tag,
+            text: '',
+            link: true,
+            NewLine: false,
+            readOnly: false,
+            stype: stype,
+            styleList: StyleSheet.flatten(this.convertStyleList(update(stype, {$push: [tag, 'href']})))
         };
     }
 
     addToUpComming(toolType) {
         if (this.upComingStype) {
             let indexOfUpToolType = this.upComingStype.stype.indexOf(toolType);
-            let newUpStype = this.upComingStype ? (indexOfUpToolType != -1 ? update(this.upComingStype.stype, { $splice: [[indexOfUpToolType, 1]] })
-                : update(this.upComingStype.stype, { $push: [toolType] })) : [toolType];
+            let newUpStype = this.upComingStype ? (indexOfUpToolType != -1 ? update(this.upComingStype.stype, {$splice: [[indexOfUpToolType, 1]]})
+                : update(this.upComingStype.stype, {$push: [toolType]})) : [toolType];
             this.upComingStype.stype = newUpStype;
-            this.upComingStype.styleList = StyleSheet.flatten(this.convertStyleList(update(newUpStype, { $push: [this.upComingStype.tag] })));
+            this.upComingStype.styleList = StyleSheet.flatten(this.convertStyleList(update(newUpStype, {$push: [this.upComingStype.tag]})));
 
         }
 
@@ -872,8 +881,8 @@ class CNTextInput extends Component {
 
     applyStyle(toolType) {
 
-        const { selection: { start, end } } = this.state;
-        const { items } = this.props;
+        const {selection: {start, end}} = this.state;
+        const {items} = this.props;
 
         let newCollection = [];
 
@@ -882,17 +891,17 @@ class CNTextInput extends Component {
         let upComingAdded = false;
 
         for (var i = 0; i < content.length; i++) {
-            const { id, len, stype, tag, text, styleList } = content[i];
+            const {id, len, stype, tag, text, styleList} = content[i];
             const NewLine = content[i].NewLine ? content[i].NewLine : false;
             const readOnly = content[i].readOnly ? content[i].readOnly : false;
 
             let indexOfToolType = stype.indexOf(toolType);
             let newStype = (indexOfToolType != -1) ?
-                update(stype, { $splice: [[indexOfToolType, 1]] })
-                : update(stype, { $push: [toolType] });
+                update(stype, {$splice: [[indexOfToolType, 1]]})
+                : update(stype, {$push: [toolType]});
 
 
-            let newStyles = StyleSheet.flatten(this.convertStyleList(update(newStype, { $push: [tag] })));
+            let newStyles = StyleSheet.flatten(this.convertStyleList(update(newStype, {$push: [tag]})));
 
             let from = indx;
             indx += len;
@@ -917,16 +926,14 @@ class CNTextInput extends Component {
                             (this.upComingStype.sel.start === start && this.upComingStype.sel.end === end) == false) {
 
                             this.createUpComing(start, end, tag, newStype);
-                        }
-                        else {
+                        } else {
                             this.addToUpComming(toolType);
                         }
 
                         upComingAdded = true;
                     }
                 }
-            }
-            else if ((start >= from && start < to) && (end >= from && end < to)) {
+            } else if ((start >= from && start < to) && (end >= from && end < to)) {
 
                 if (start !== end) {
 
@@ -964,8 +971,7 @@ class CNTextInput extends Component {
                             styleList: styleList,
                         });
                     }
-                }
-                else {
+                } else {
 
                     newCollection.push({
                         id: id,
@@ -984,8 +990,7 @@ class CNTextInput extends Component {
                             (this.upComingStype.sel.start === start && this.upComingStype.sel.end === end) == false) {
 
                             this.createUpComing(start, end, tag, newStype);
-                        }
-                        else {
+                        } else {
                             this.addToUpComming(toolType);
                         }
 
@@ -994,8 +999,7 @@ class CNTextInput extends Component {
 
                 }
 
-            }
-            else if (start >= from && start < to) {
+            } else if (start >= from && start < to) {
 
                 if (start !== from) {
                     newCollection.push({
@@ -1020,8 +1024,7 @@ class CNTextInput extends Component {
                     styleList: newStyles,
                 });
 
-            }
-            else if (end > from && end <= to) {
+            } else if (end > from && end <= to) {
                 if (start === end) {
                     newCollection.push({
                         id: id,
@@ -1038,16 +1041,14 @@ class CNTextInput extends Component {
                     if (upComingAdded === false) {
                         if (this.upComingStype === null || (this.upComingStype.sel.start === start && this.upComingStype.sel.end === end) == false) {
                             this.createUpComing(start, end, tag, newStype);
-                        }
-                        else {
+                        } else {
                             this.addToUpComming(toolType);
                         }
 
                         upComingAdded = true;
                     }
 
-                }
-                else {
+                } else {
 
                     newCollection.push({
                         id: shortid.generate(),
@@ -1073,8 +1074,7 @@ class CNTextInput extends Component {
 
                     }
                 }
-            }
-            else if (from === to && start === from && end === to) {
+            } else if (from === to && start === from && end === to) {
                 newCollection.push({
                     id: id,
                     text: text,
@@ -1089,15 +1089,13 @@ class CNTextInput extends Component {
                 if (upComingAdded === false) {
                     if (this.upComingStype === null || (this.upComingStype.sel.start === start && this.upComingStype.sel.end === end) == false) {
                         this.createUpComing(start, end, tag, newStype);
-                    }
-                    else {
+                    } else {
                         this.addToUpComming(toolType);
                     }
 
                     upComingAdded = true;
                 }
-            }
-            else if ((from >= start && from <= end) && (to >= start && to <= end)) {
+            } else if ((from >= start && from <= end) && (to >= start && to <= end)) {
 
                 newCollection.push({
                     id: id,
@@ -1111,8 +1109,7 @@ class CNTextInput extends Component {
 
                 });
 
-            }
-            else {
+            } else {
 
                 newCollection.push({
                     id: id,
@@ -1136,16 +1133,15 @@ class CNTextInput extends Component {
         let styles = [];
         if (this.upComingStype != null) {
             styles = this.upComingStype.stype;
-        }
-        else {
-            styles = newCollection[res.findIndx].stype;;
+        } else {
+            styles = newCollection[res.findIndx].stype;
+            ;
         }
 
         this.justToolAdded = start !== end;
         this.props.onContentChanged(newCollection);
         if (this.props.onSelectedStyleChanged)
             this.props.onSelectedStyleChanged(styles);
-
 
 
     }
@@ -1159,11 +1155,11 @@ class CNTextInput extends Component {
     }
 
     applyTag(tagType) {
-        const { items } = this.props;
-        const { selection } = this.state;
+        const {items} = this.props;
+        const {selection} = this.state;
 
         let res = this.findContentIndex(items, selection.end);
-        const { content, recalcText } = this.changeToTagIn(items, tagType, res.findIndx);
+        const {content, recalcText} = this.changeToTagIn(items, tagType, res.findIndx);
 
         if (recalcText == true) {
             this.oldText = this.reCalculateText(content);
@@ -1186,21 +1182,19 @@ class CNTextInput extends Component {
         for (let i = index + 1; i < content.length; i++) {
             if (content[i].NewLine === true) {
                 break;
-            }
-            else {
+            } else {
 
 
                 if (needBold === true && content[i].stype.indexOf('bold') == -1) {
-                    content[i].stype = update(content[i].stype, { $push: ['bold'] })
+                    content[i].stype = update(content[i].stype, {$push: ['bold']})
 
-                }
-                else if (needBold === false &&
+                } else if (needBold === false &&
                     (content[i].tag === 'heading' || content[i].tag === 'title') &&
                     content[i].stype.indexOf('bold') != -1) {
                     content[i].stype = content[i].stype.filter(typ => typ != 'bold')
                 }
                 content[i].tag = tag;
-                content[i].styleList = StyleSheet.flatten(this.convertStyleList(update(content[i].stype, { $push: [content[i].tag] })));
+                content[i].styleList = StyleSheet.flatten(this.convertStyleList(update(content[i].stype, {$push: [content[i].tag]})));
             }
         }
         let shouldReorderList = false;
@@ -1214,16 +1208,15 @@ class CNTextInput extends Component {
             if (needBold === true &&
                 // (content[i].tag === 'heading' || content[i].tag === 'title') &&
                 content[i].stype.indexOf('bold') == -1) {
-                content[i].stype = update(content[i].stype, { $push: ['bold'] })
-            }
-            else if (needBold === false &&
+                content[i].stype = update(content[i].stype, {$push: ['bold']})
+            } else if (needBold === false &&
                 (content[i].tag === 'heading' || content[i].tag === 'title') &&
                 content[i].stype.indexOf('bold') != -1) {
                 content[i].stype = content[i].stype.filter(typ => typ != 'bold')
             }
 
             content[i].tag = tag;
-            content[i].styleList = StyleSheet.flatten(this.convertStyleList(update(content[i].stype, { $push: [content[i].tag] })));
+            content[i].styleList = StyleSheet.flatten(this.convertStyleList(update(content[i].stype, {$push: [content[i].tag]})));
 
             if (content[i].NewLine === true) {
                 recalcText = true;
@@ -1235,8 +1228,7 @@ class CNTextInput extends Component {
                         if (i === 0) {
                             content[i].text = '\u2022 ';
                             content[i].len = 2;
-                        }
-                        else {
+                        } else {
                             content[i].text = '\n\u2022 ';
                             content[i].len = 3;
                         }
@@ -1245,8 +1237,7 @@ class CNTextInput extends Component {
                         if (fromTextChange === true && IS_IOS !== true) {
                             this.androidSelectionJump += content[i].len;
                         }
-                    }
-                    else {
+                    } else {
                         //if(i !== 0) {
                         if (content[i].len > (i === 0 ? 0 : 1)) {
                             content[i].text = content[i].text.substring((i === 0 ? 0 : 1));
@@ -1261,10 +1252,9 @@ class CNTextInput extends Component {
                                 NewLine: true,
                                 readOnly: true
                             };
-                            content = update(content, { $splice: [[i, 0, listContent]] });
+                            content = update(content, {$splice: [[i, 0, listContent]]});
 
-                        }
-                        else {
+                        } else {
                             content[i].text = i === 0 ? '\u2022 ' : '\n\u2022 ';
                             content[i].len = i === 0 ? 2 : 3;
                             content[i].readOnly = true;
@@ -1278,13 +1268,8 @@ class CNTextInput extends Component {
                         //}
 
 
-
-
-
-
                     }
-                }
-                else if (tag === 'ol') {
+                } else if (tag === 'ol') {
 
                     shouldReorderList = true;
                     if (content[i].readOnly === true) {
@@ -1292,8 +1277,7 @@ class CNTextInput extends Component {
                         if (i === 0) {
                             content[i].text = '1- ';
                             content[i].len = 3;
-                        }
-                        else {
+                        } else {
                             content[i].text = '\n1- ';
                             content[i].len = 4;
                         }
@@ -1301,8 +1285,7 @@ class CNTextInput extends Component {
                         if (fromTextChange === true && IS_IOS !== true) {
                             this.androidSelectionJump += content[i].len;
                         }
-                    }
-                    else {
+                    } else {
 
                         if (content[i].len > (i === 0 ? 0 : 1)) {
                             content[i].text = content[i].text.substring((i === 0 ? 0 : 1));
@@ -1317,16 +1300,13 @@ class CNTextInput extends Component {
                                 NewLine: true,
                                 readOnly: true
                             };
-                            content = update(content, { $splice: [[i, 0, listContent]] });
-                        }
-                        else {
+                            content = update(content, {$splice: [[i, 0, listContent]]});
+                        } else {
                             content[i].text = i === 0 ? '1- ' : '\n1- ';
                             content[i].len = i === 0 ? 3 : 4;
                             content[i].readOnly = true;
                             content[i].stype = [];
                         }
-
-
 
 
                         this.textLength += 3;
@@ -1335,29 +1315,25 @@ class CNTextInput extends Component {
                         }
                     }
 
-                }
-                else if (content[i].readOnly === true) {
+                } else if (content[i].readOnly === true) {
                     if (i !== 0) {
                         this.textLength -= (content[i].len - 1);
                         content[i].text = '\n';
                         content[i].len = 1;
                         content[i].readOnly = false;
-                    }
-                    else {
+                    } else {
 
 
                         this.textLength -= content[i].len;
                         if (content.length > 1 && !(content[1].NewLine === true)) {
-                            content = update(content, { $splice: [[i, 1]] });
+                            content = update(content, {$splice: [[i, 1]]});
                             content[0].NewLine = true;
-                        }
-                        else {
+                        } else {
                             content[0].NewLine = true;
                             content[0].readOnly = false;
                             content[0].len = 0;
                             content[0].text = '';
                         }
-
 
 
                     }
@@ -1371,13 +1347,12 @@ class CNTextInput extends Component {
         }
 
 
-
         if (shouldReorderList === true) {
             recalcText = true;
             content = this.reorderList(content);
         }
 
-        return { content, recalcText };
+        return {content, recalcText};
     }
 
     reorderList(items) {
@@ -1390,8 +1365,7 @@ class CNTextInput extends Component {
                 items[i].len = items[i].text.length;
                 this.textLength += items[i].len;
                 listNo += 1;
-            }
-            else if (element.tag !== 'ol') {
+            } else if (element.tag !== 'ol') {
                 listNo = 1;
             }
 
@@ -1421,9 +1395,9 @@ class CNTextInput extends Component {
 
     forceSelectedStyles() {
         const content = this.props.items;
-        const { selection } = this.state;
+        const {selection} = this.state;
 
-        let { findIndx } = this.findContentIndex(content, selection.end);
+        let {findIndx} = this.findContentIndex(content, selection.end);
         let styles = content[findIndx].stype;
         let selectedTag = content[findIndx].tag;
 
@@ -1455,10 +1429,10 @@ class CNTextInput extends Component {
     }
 
     render() {
-        const { items, foreColor, style, returnKeyType } = this.props;
-        const { selection } = this.state;
+        const {items, foreColor, style, returnKeyType} = this.props;
+        const {selection} = this.state;
         let color = foreColor ? foreColor : '#000';
-        if (IS_IOS){
+        if (IS_IOS) {
             return (
                 <TextInput
                     underlineColorAndroid='rgba(0,0,0,0)'
@@ -1489,7 +1463,7 @@ class CNTextInput extends Component {
 
 
                             return (
-                                <CNStyledText key={item.id} style={item.styleList} text={item.text} />
+                                <CNStyledText key={item.id} style={item.styleList} text={item.text}/>
                             );
                         })
                     }
@@ -1526,7 +1500,7 @@ class CNTextInput extends Component {
 
 
                             return (
-                                <CNStyledText key={item.id} style={item.styleList} text={item.text} />
+                                <CNStyledText key={item.id} style={item.styleList} text={item.text}/>
                             );
                         })
                     }
@@ -1539,8 +1513,8 @@ class CNTextInput extends Component {
 
     splitItems() {
 
-        const { selection } = this.state;
-        const { items } = this.props;
+        const {selection} = this.state;
+        const {items} = this.props;
         let selectionEnd = selection.end;
         if (items[items.length - 1].text === '\n') {
             selectionEnd = selectionEnd - 1;
@@ -1596,18 +1570,17 @@ class CNTextInput extends Component {
         };
     }
 
-    focus(selection = null){
+    focus(selection = null) {
 
         this.textInput.focus();
 
-        if(selection != null && selection.start && selection.end)
-        {
+        if (selection != null && selection.start && selection.end) {
 
             setTimeout(() => {
                 this.setState({
                     selection: selection
                 })
-            },300)
+            }, 300)
 
         }
     }
