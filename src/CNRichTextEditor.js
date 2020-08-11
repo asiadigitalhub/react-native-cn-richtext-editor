@@ -313,7 +313,7 @@ class CNRichTextEditor extends Component {
         const {focusInputIndex} = this.state;
         const {value} = this.props;
         let index = focusInputIndex + 1;
-        let contents = value[value.length - 1].content;
+        let contents = value[focusInputIndex].content;
         let sum = 0;
         let textValue = '';
         for (var key in contents) {
